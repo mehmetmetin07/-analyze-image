@@ -1,96 +1,80 @@
 # Resim Analiz API
 
-Bu API, Google Cloud Vision ve Google Cloud Translate API'lerini kullanarak resimleri analiz eder ve sonuçları Türkçe'ye çevirir.
+Bu proje, yüklenen resimleri analiz edip açıklama üreten bir FastAPI uygulamasıdır.
 
 ## Özellikler
 
-- Resim analizi (Google Cloud Vision API)
-- Otomatik çeviri (Google Cloud Translate API)
-- Dosya yükleme desteği
+- Resim yükleme ve analiz
+- Otomatik resim açıklaması üretme
 - CORS desteği
-- Health check endpoint'i
+- Sağlık kontrolü endpoint'i
+- Hata yönetimi
 
 ## Gereksinimler
 
-- Node.js 18 veya üzeri
-- Google Cloud hesabı
-- Google Cloud Vision API aktif
-- Google Cloud Translate API aktif
-- Google Cloud Service Account anahtarı
+- Python 3.8+
+- FastAPI
+- PyTorch
+- Transformers
+- Pillow
 
 ## Kurulum
 
-1. Repo'yu klonlayın:
+1. Projeyi klonlayın:
 ```bash
-git clone [REPO_URL]
-cd [REPO_NAME]
+git clone https://github.com/kullaniciadi/resim-analiz-api.git
+cd resim-analiz-api
 ```
 
-2. Bağımlılıkları yükleyin:
+2. Sanal ortam oluşturun ve aktifleştirin:
 ```bash
-npm install
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
 ```
 
-3. Google Cloud kimlik bilgilerini ayarlayın:
-- Google Cloud Console'dan bir Service Account anahtarı oluşturun
-- Anahtarı `google-credentials.json` olarak kaydedin
-- Ortam değişkenini ayarlayın:
+3. Gereksinimleri yükleyin:
 ```bash
-export GOOGLE_APPLICATION_CREDENTIALS="./google-credentials.json"
+pip install -r requirements.txt
 ```
 
-4. Uygulamayı başlatın:
+## Kullanım
+
+Uygulamayı başlatmak için:
 ```bash
-npm start
+uvicorn main:app --reload
 ```
 
-## API Endpoint'leri
+API şu endpoint'leri sunar:
 
-### GET /health
-Servis durumunu kontrol eder.
+- `GET /`: Ana sayfa
+- `GET /health`: Sağlık kontrolü
+- `POST /analyze`: Resim analizi (multipart form data ile resim yükleme)
 
-### POST /analyze
-Resim analizi yapar.
+### Örnek İstek
 
-**Request:**
-- Method: POST
-- Content-Type: multipart/form-data
-- Body: file (resim dosyası)
+```bash
+curl -X POST "http://localhost:8000/analyze" \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@resim.jpg"
+```
 
-**Response:**
+### Örnek Yanıt
+
 ```json
 {
-    "success": true,
-    "data": {
-        "english": "This image shows [labels]",
-        "turkish": "[Türkçe çeviri]",
-        "labels": [
-            {
-                "name": "label1",
-                "confidence": 0.95
-            }
-        ]
-    }
+  "success": true,
+  "caption": "a person walking on a beach at sunset"
 }
 ```
 
-## Docker ile Çalıştırma
+## Render Deployment
 
-```bash
-docker build -t image-analysis-api .
-docker run -p 8080:8080 -v $(pwd)/google-credentials.json:/app/google-credentials.json image-analysis-api
-```
-
-## Cloud Run Deployment
-
-```bash
-gcloud run deploy analyze-image \
-  --source . \
-  --platform managed \
-  --region europe-west1 \
-  --allow-unauthenticated
-```
+1. Render.com'da yeni bir web servisi oluşturun
+2. Python ortamını seçin
+3. Build command: `pip install -r requirements.txt`
+4. Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
 
 ## Lisans
 
-MIT 
+MIT License 
